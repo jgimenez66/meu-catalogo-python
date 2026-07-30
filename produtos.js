@@ -441,17 +441,21 @@ document.addEventListener("DOMContentLoaded", () => {
 function carregarProdutosDoBancoNuvem() {
     console.log("Buscando dados no banco de dados na nuvem...");
 
-    // Link oficial do seu JSON na nuvem
-    fetch("https://github.io")
+    // Chamada usando o seu link oficial exato e direto da pasta
+    fetch("https://jgimenez66.github.io/meu-catalogo-python/")
         .then(resposta => resposta.json())
         .then(dadosProdutos => {
 
-            // Alimenta a lista do seu catálogo (substitua pelo nome da sua variável global se necessário)
             produtos = dadosProdutos;
-
             console.log("Produtos importados com sucesso da nuvem:", produtos);
 
-            // Executa o seu layout original para colocar as fotos e preços na tela
+            // Correção automática para ler a pasta Imagens com o "I" maiúsculo do seu GitHub
+            produtos.forEach(doce => {
+                if (doce.foto && doce.foto.includes("./imagens/")) {
+                    doce.foto = doce.foto.replace("./imagens/", "./Imagens/");
+                }
+            });
+
             if (typeof renderizarProdutos === "function") {
                 renderizarProdutos();
             }
@@ -461,5 +465,4 @@ function carregarProdutosDoBancoNuvem() {
         });
 }
 
-// Dispara o carregamento assim que o site abre
 window.addEventListener("DOMContentLoaded", carregarProdutosDoBancoNuvem);
