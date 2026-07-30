@@ -441,15 +441,15 @@ document.addEventListener("DOMContentLoaded", () => {
 function carregarProdutosDoBancoNuvem() {
     console.log("Buscando dados no banco de dados na nuvem...");
 
-    // Chamada usando o seu link oficial exato e direto da pasta
-    fetch("https://jgimenez66.github.io/meu-catalogo-python/")
+    // O link abaixo contém o 'produtos.json' obrigatório no final
+    fetch("https://jgimenez66.github.io/meu-catalogo-python/produtos.json")
         .then(resposta => resposta.json())
         .then(dadosProdutos => {
 
             produtos = dadosProdutos;
             console.log("Produtos importados com sucesso da nuvem:", produtos);
 
-            // Correção automática para ler a pasta Imagens com o "I" maiúsculo do seu GitHub
+            // Ajuste automático para ler a pasta Imagens com o "I" maiúsculo do seu GitHub
             produtos.forEach(doce => {
                 if (doce.foto && doce.foto.includes("./imagens/")) {
                     doce.foto = doce.foto.replace("./imagens/", "./Imagens/");
