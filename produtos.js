@@ -253,59 +253,76 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+
 // =================================================================
-// INTEGRAÇÃO SAAS: MISTURA BANCO EM NUVEM + BANCO DO ADMINISTRADOR
+// CONEXÃO ULTRA SEGURA COM O BANCO DE DADOS EM NUVEM E LOCAL
 // =================================================================
 
 function carregarProdutosDoBancoNuvem() {
-    console.log("Buscando produtos na nuvem do GitHub...");
+    console.log("Iniciando carregamento do catálogo...");
 
-    // 1. Busca o produto padrão que deixamos fixo na nuvem
+    // Passo 1: Busca o produto padrão direto na nuvem do GitHub
     fetch("https://jgimenez66.github.io/meu-catalogo-python/produtos.json")
-        .then(resposta => resposta.json())
+        .then(resposta => {
+            if (!resposta.ok) throw new Error("Erro na rede");
+            return resposta.json();
+        })
         .then(produtosNuvem => {
-            
-            // Ajusta o caminho da pasta Imagens maiúscula da nuvem
+            // Corrige o caminho da pasta de imagens maiúscula da nuvem
             produtosNuvem.forEach(doce => {
                 if (doce.foto && doce.foto.includes("./imagens/")) {
                     doce.foto = doce.foto.replace("./imagens/", "./Imagens/");
                 }
             });
 
-            // 2. Abre o banco interno onde o lojista cadastrou itens novos pelo admin.html
-            const request = indexedDB.open("BancoNativoSaaS", 1);
-            
-            request.onsuccess = function(e) {
-                const db = e.target.result;
-                const transaction = db.transaction(["produtos"], "readonly");
-                const store = transaction.objectStore("produtos");
-                const buscaLocal = store.getAll();
+            // Alimenta a lista global do site inicialmente com o doce da nuvem
+            produtos = produtosNuvem;
 
-                buscaLocal.onsuccess = function() {
-                    const produtosLocais = buscaLocal.result;
-
-                    // Junta o bombom da nuvem com os novos doces cadastrados pelo lojista!
-                    produtos = [...produtosNuvem, ...produtosLocais];
+            // Passo 2: Tenta buscar os produtos criados pelo lojista no admin.html
+            try {
+                const request = indexedDB.open("BancoNativoSaaS", 1);
+                
+                request.onsuccess = function(e) {
+                    const db = e.target.result;
                     
-                    console.log("Todos os produtos carregados com sucesso:", produtos);
-
-                    // Executa a sua função original para desenhar tudo na tela
-                    if (typeof renderizarProdutos === "function") {
-                        renderizarProdutos();
+                    // Verifica se a tabela realmente existe antes de ler para evitar travamentos
+                    if (!db.objectStoreNames.contains("produtos")) {
+                        console.log("Banco do admin ainda vazio. Exibindo apenas nuvem.");
+                        if (typeof renderizarProdutos === "function") renderizarProdutos();
+                        return;
                     }
-                };
-            };
 
-            request.onerror = function() {
-                // Se o banco local estiver vazio ou falhar, carrega pelo menos o da nuvem
-                produtos = produtosNuvem;
+                    const transaction = db.transaction(["produtos"], "readonly");
+                    const store = transaction.objectStore("produtos");
+                    const buscaLocal = store.getAll();
+
+                    buscaLocal.onsuccess = function() {
+                        const produtosLocais = buscaLocal.result || [];
+                        // Junta os dois mundos com segurança
+                        produtos = [...produtosNuvem, ...produtosLocais];
+                        console.log("Catálogo completo unificado:", produtos);
+                        if (typeof renderizarProdutos === "function") renderizarProdutos();
+                    };
+
+                    buscaLocal.onerror = function() {
+                        console.log("Erro ao ler locais. Exibindo nuvem.");
+                        if (typeof renderizarProdutos === "function") renderizarProdutos();
+                    };
+                };
+
+                request.onerror = function() {
+                    console.log("IndexedDB bloqueado. Exibindo apenas nuvem.");
+                    if (typeof renderizarProdutos === "function") renderizarProdutos();
+                };
+
+            } catch (err) {
+                console.log("Erro no IndexedDB. Exibindo apenas nuvem:", err);
                 if (typeof renderizarProdutos === "function") renderizarProdutos();
-            };
+            }
         })
         .catch(erro => {
-            console.error("Erro crítico ao carregar dados do catálogo:", erro);
+            console.error("Erro crítico ao ler o banco online:", erro);
         });
 }
 
-// Dispara o carregamento completo assim que o site abre
-window.addEventListener("DOMContentLoaded", carregarTodosOsProdutos);
+window.addEventListener("DOMContentLoaded", carregarProdutosDoBancoNuvem);
