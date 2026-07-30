@@ -254,34 +254,58 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // =================================================================
-// CONEXÃO COM O BANCO DE DADOS EM NUVEM (GITHUB PAGES)
+// INTEGRAÇÃO SAAS: MISTURA BANCO EM NUVEM + BANCO DO ADMINISTRADOR
 // =================================================================
 
 function carregarProdutosDoBancoNuvem() {
-    console.log("Buscando dados no banco de dados na nuvem...");
+    console.log("Buscando produtos na nuvem do GitHub...");
 
-    // O link abaixo contém o 'produtos.json' obrigatório no final
+    // 1. Busca o produto padrão que deixamos fixo na nuvem
     fetch("https://jgimenez66.github.io/meu-catalogo-python/produtos.json")
         .then(resposta => resposta.json())
-        .then(dadosProdutos => {
-
-            produtos = dadosProdutos;
-            console.log("Produtos importados com sucesso da nuvem:", produtos);
-
-            // Ajuste automático para ler a pasta Imagens com o "I" maiúsculo do seu GitHub
-            produtos.forEach(doce => {
+        .then(produtosNuvem => {
+            
+            // Ajusta o caminho da pasta Imagens maiúscula da nuvem
+            produtosNuvem.forEach(doce => {
                 if (doce.foto && doce.foto.includes("./imagens/")) {
                     doce.foto = doce.foto.replace("./imagens/", "./Imagens/");
                 }
             });
 
-            if (typeof renderizarProdutos === "function") {
-                renderizarProdutos();
-            }
+            // 2. Abre o banco interno onde o lojista cadastrou itens novos pelo admin.html
+            const request = indexedDB.open("BancoNativoSaaS", 1);
+            
+            request.onsuccess = function(e) {
+                const db = e.target.result;
+                const transaction = db.transaction(["produtos"], "readonly");
+                const store = transaction.objectStore("produtos");
+                const buscaLocal = store.getAll();
+
+                buscaLocal.onsuccess = function() {
+                    const produtosLocais = buscaLocal.result;
+
+                    // Junta o bombom da nuvem com os novos doces cadastrados pelo lojista!
+                    produtos = [...produtosNuvem, ...produtosLocais];
+                    
+                    console.log("Todos os produtos carregados com sucesso:", produtos);
+
+                    // Executa a sua função original para desenhar tudo na tela
+                    if (typeof renderizarProdutos === "function") {
+                        renderizarProdutos();
+                    }
+                };
+            };
+
+            request.onerror = function() {
+                // Se o banco local estiver vazio ou falhar, carrega pelo menos o da nuvem
+                produtos = produtosNuvem;
+                if (typeof renderizarProdutos === "function") renderizarProdutos();
+            };
         })
         .catch(erro => {
-            console.error("Erro crítico ao ler o banco de dados online:", erro);
+            console.error("Erro crítico ao carregar dados do catálogo:", erro);
         });
 }
 
-window.addEventListener("DOMContentLoaded", carregarProdutosDoBancoNuvem);
+// Dispara o carregamento completo assim que o site abre
+window.addEventListener("DOMContentLoaded", carregarTodosOsProdutos);
