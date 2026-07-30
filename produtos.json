@@ -1,0 +1,12 @@
+[
+  {
+    "id": "doce_real_01",
+    "nome": "Bombom Branco Praline",
+    "descricao": "Chocolate branco artesanal e nozes crocantíssimas.",
+    "foto": "./imagens/Bombom_Branco_Praline.jpg",
+    "preco": "5,50",
+    "precoPromocional": "4,50",
+    "promocaoQuantidade": 2,
+    "categoria": "todos"
+  }
+]
