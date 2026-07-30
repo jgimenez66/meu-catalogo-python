@@ -1,7 +1,7 @@
 const produtos = [
 {
   nome: "Bombom Branco Praline",
-  foto: "imagens/Bombom_Branco_Praline.jpg",
+  foto: "Imagens/Bombom_Branco_Praline.jpg",
   descricao: "Chocolate branco e nozes",
   preco: "5,50",
   categoria: "grupo01",
