@@ -2,180 +2,205 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Administrativo - Sandra Doces Finos</title>
+    <title>Painel Administrativo - SaaS E-commerce</title>
     <style>
-        :root { --cor-principal: #5c3a21; --cor-fundo: #f9f6f0; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--cor-fundo); color: #333; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; box-sizing: border-box; }
-        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
-        h2 { color: var(--cor-principal); text-align: center; margin-top: 0; }
-        .campo { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
-        input, textarea, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
-        textarea { resize: vertical; height: 80px; }
-        button { width: 100%; padding: 12px; background: var(--cor-principal); color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
-        button:hover { background: #4a2e1a; }
-        .erro { color: #d9534f; text-align: center; margin-bottom: 15px; font-weight: bold; display: none; }
-        #painel-cadastro { display: none; }
-        .produto-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
-        .btn-deletar { background: #d9534f; width: auto; padding: 5px 10px; font-size: 12px; }
-        .btn-deletar:hover { background: #c9302c; }
-        #lista-produtos { margin-top: 20px; max-height: 200px; overflow-y: auto; border: 1px solid #eee; border-radius: 6px; }
+        /* Layout Base: Menu Lateral + Conteúdo Principal */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Estilização do Menu Lateral */
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: white;
+            display: flex;
+            flex-direction: column;
+        }
+
+            .sidebar h2 {
+                text-align: center;
+                padding: 20px 0;
+                margin: 0;
+                background-color: #1a252f;
+                font-size: 18px;
+            }
+
+            .sidebar button {
+                background: none;
+                border: none;
+                color: #bdc3c7;
+                padding: 15px 20px;
+                text-align: left;
+                font-size: 16px;
+                cursor: pointer;
+                width: 100%;
+                transition: 0.2s;
+            }
+
+                .sidebar button:hover, .sidebar button.active {
+                    background-color: #34495e;
+                    color: white;
+                }
+
+        /* Área de Conteúdo Principal */
+        .content-area {
+            flex: 1;
+            padding: 30px;
+            background-color: #f8f9fa;
+            overflow-y: auto;
+        }
+
+        /* Classe utilitária para esconder as telas inativas */
+        .tab-content {
+            display: none;
+        }
+
+            .tab-content.active {
+                display: block;
+            }
+
+        /* Estilo rápido para o formulário */
+        .form-grupo {
+            margin-bottom: 15px;
+        }
+
+            .form-grupo label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: bold;
+            }
+
+            .form-grupo input {
+                width: 100%;
+                max-width: 400px;
+                padding: 8px;
+            }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <!-- TELA DE LOGIN PROTEGIDA -->
-    <div id="tela-login">
-        <h2>Acesso Administrativo</h2>
-        <div id="erro-login" class="erro">Senha incorreta! Tente novamente.</div>
-        <div class="campo">
-            <label for="senha">Digite a Senha de Acesso:</label>
-            <input type="password" id="senha" placeholder="Sua senha secreta">
+    <!-- 1. MENU LATERAL DE NAVEGAÇÃO -->
+    <div class="sidebar">
+        <h2>Painel Lojista</h2>
+        <button class="menu-btn active" onclick="mudarAba('aba-produtos')">📦 Cadastro de Produtos</button>
+        <button class="menu-btn" onclick="mudarAba('aba-clientes')">👥 Clientes (Em Breve)</button>
+        <button class="menu-btn" onclick="mudarAba('aba-config')">⚙️ Configurações (Em Breve)</button>
+    </div>
+
+    <!-- 2. ÁREA DOS CONTEÚDOS (CONTEINER UNIVERSAL) -->
+    <div class="content-area">
+
+        <!-- TELA A: CADASTRO DE PRODUTOS (ATIVA POR PADRÃO) -->
+        <div id="aba-produtos" class="tab-content active">
+            <h1>Cadastro de Doces</h1>
+            <p>Gerencie o estoque que aparece no seu catálogo em tempo real.</p>
+            <hr>
+
+            <!-- Formulário de cadastro conectado ao Firebase -->
+            <form id="form-produto" style="margin-top: 20px;">
+                <div class="form-grupo">
+                    <label>Nome do Doce:</label>
+                    <input type="text" id="prod-nome" required placeholder="Ex: Brigadeiro Gourmet">
+                </div>
+                <div class="form-grupo">
+                    <label>Preço (R$):</label>
+                    <input type="number" id="prod-preco" step="0.01" required placeholder="0.00">
+                </div>
+                <div class="form-grupo">
+                    <label>Foto do Produto:</label>
+                    <input type="file" id="prod-foto" accept="image/*" required>
+                </div>
+                <button type="submit" style="padding: 10px 20px; background-color: #27ae60; color: white; border: none; cursor: pointer;">Salvar Produto Online</button>
+            </form>
         </div>
-        <button onclick="verificarSenha()">Entrar no Painel</button>
+
+        <!-- TELA B: CLIENTES (FUTURA IMPLEMENTAÇÃO) -->
+        <div id="aba-clientes" class="tab-content">
+            <h1>Gerenciamento de Clientes</h1>
+            <p>Área destinada à listagem de compradores, histórico de aluguéis e contatos.</p>
+            <!-- Seu código futuro de clientes entrará aqui -->
+        </div>
+
+        <!-- TELA C: CONFIGURAÇÕES (FUTURA IMPLEMENTAÇÃO) -->
+        <div id="aba-config" class="tab-content">
+            <h1>Configurações da Loja</h1>
+            <p>Configure aqui o nome da sua marca, horário de atendimento e chaves de Pix.</p>
+            <!-- Seu código futuro de configurações entrará aqui -->
+        </div>
+
     </div>
 
-    <!-- PAINEL DE CADASTRO (ESCONDIDO ATÉ FAZER LOGIN) -->
-    <div id="painel-cadastro">
-        <h2>Gerenciar Catálogo</h2>
-        <div id="erro-cadastro" class="erro">Preencha todos os campos obrigatórios!</div>
-        
-        <form id="form-produto" onsubmit="salvarProduto(event)">
-            <div class="campo">
-                <label for="nome">Nome do Doce/Produto:</label>
-                <input type="text" id="nome" required placeholder="Ex: Brigadeiro Belga Gourmet">
-            </div>
-            <div class="campo">
-                <label for="descricao">Descrição Completa:</label>
-                <textarea id="descricao" required placeholder="Ex: Chocolate 50% cacau com granulado belga..."></textarea>
-            </div>
-            <div class="campo" style="display: flex; gap: 10px;">
-                <div style="flex: 1;">
-                    <label for="preco">Preço (R$):</label>
-                    <input type="text" id="preco" required placeholder="Ex: 5,50">
-                </div>
-                <div style="flex: 1;">
-                    <label for="precoPromocional">Preço Promo (R$):</label>
-                    <input type="text" id="precoPromocional" placeholder="Ex: 4,50">
-                </div>
-            </div>
-            <div class="campo" style="display: flex; gap: 10px;">
-                <div style="flex: 1;">
-                    <label for="quantidade">Estoque (Qtd):</label>
-                    <input type="number" id="quantidade" value="0" min="0">
-                </div>
-                <div style="flex: 1;">
-                    <label for="categoria">Categoria:</label>
-                    <select id="categoria">
-                        <option value="todos">Todos</option>
-                        <option value="tradicionais">Tradicionais</option>
-                        <option value="finos">Finos</option>
-                    </select>
-                </div>
-            </div>
-            <div class="campo">
-                <label for="foto">Foto do Produto:</label>
-                <input type="file" id="foto" accept="image/*" required>
-            </div>
-            <button type="submit">Cadastrar Produto</button>
-        </form>
+    <!-- 3. LÓGICA JAVASCRIPT DE ALTERNÂNCIA E CONEXÃO -->
+    <script type="module">
+        import { initializeApp } from "https://gstatic.com";
+        import { getFirestore, collection, addDoc } from "https://gstatic.com";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://gstatic.com";
 
-        <h3 style="margin-top: 25px; color: #555;">Produtos Cadastrados</h3>
-        <div id="lista-produtos"></div>
-    </div>
-</div>
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyABpuATjocu03EjhqNDxw4t_wKWQYUmuuM",
+            authDomain: "catalogo-vendas-2007.firebaseapp.com",
+            projectId: "catalogo-vendas-2007",
+            storageBucket: "catalogo-vendas-2007.firebasestorage.app",
+            messagingSenderId: "158396434963",
+            appId: "1:158396434963:web:864d13b64641f2f1b20de6"
+        };
 
-<script>
-    // DEFINE A SENHA DO ADMINISTRADOR
-    const SENHA_CORRETA = "admin123"; 
-    let db;
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
 
-    function verificarSenha() {
-        const senhaDigitada = document.getElementById("senha").value;
-        if (senhaDigitada === SENHA_CORRETA) {
-            document.getElementById("tela-login").style.display = "none";
-            document.getElementById("painel-cadastro").style.display = "block";
-            inicializarBanco();
-        } else {
-            document.getElementById("erro-login").style.display = "block";
+        // Identificador provisório da loja para testes (Ex: loja_da_maria)
+        const ID_LOJA_TESTE = "loja_da_maria";
+
+        // Função de controle do Menu (Alterna visibilidade das abas)
+        window.mudarAba = function (idDaAba) {
+            // Esconde todos os conteúdos
+            document.querySelectorAll('.tab-content').forEach(tela => tela.classList.remove('active'));
+            // Remove o estilo ativo de todos os botões do menu
+            document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
+
+            // Mostra a aba clicada e ativa o botão correspondente
+            document.getElementById(idDaAba).classList.add('active');
+            event.target.classList.add('active');
         }
-    }
 
-    // INICIALIZA O BANCO DE DADOS INTERNO DO NAVEGADOR
-    function inicializarBanco() {
-        const request = indexedDB.open("BancoNativoSaaS", 1);
-        request.onupgradeneeded = function(e) {
-            db = e.target.result;
-            if (!db.objectStoreNames.contains("produtos")) {
-                db.createObjectStore("produtos", { keyPath: "id", autoIncrement: true });
+        // Processamento do Envio do Formulário de Produtos
+        document.getElementById('form-produto').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const nome = document.getElementById('prod-nome').value;
+            const preco = document.getElementById('prod-preco').value;
+            const arquivoFoto = document.getElementById('prod-foto').files[0];
+
+            try {
+                let fotoUrl = "";
+                if (arquivoFoto) {
+                    const storageRef = ref(storage, `lojas/${ID_LOJA_TESTE}/doces/${Date.now()}_${arquivoFoto.name}`);
+                    await uploadBytes(storageRef, arquivoFoto);
+                    fotoUrl = await getDownloadURL(storageRef);
+                }
+
+                await addDoc(collection(db, "produtos"), {
+                    id_loja: ID_LOJA_TESTE,
+                    nome: nome,
+                    preco: parseFloat(preco),
+                    foto: fotoUrl,
+                    criadoEm: new Date()
+                });
+
+                alert("Doce cadastrado e publicado no catálogo com sucesso!");
+                document.getElementById('form-produto').reset();
+            } catch (error) {
+                console.error("Erro no cadastro:", error);
+                alert("Ocorreu um erro ao salvar o produto.");
             }
-        };
-        request.onsuccess = function(e) {
-            db = e.target.result;
-            listarProdutos();
-        };
-    }
-
-    // CONVERTE A IMAGEM EM TEXTO (BASE64) PARA SALVAR NO BANCO NATIVO
-    function salvarProduto(event) {
-        event.preventDefault();
-        const fotoInput = document.getElementById("foto").files[0];
-        const reader = new FileReader();
-
-        reader.onload = function(e) {
-            const novoProduto = {
-                nome: document.getElementById("nome").value,
-                descricao: document.getElementById("descricao").value,
-                preco: document.getElementById("preco").value,
-                precoPromocional: document.getElementById("precoPromocional").value,
-                promocaoQuantidade: parseInt(document.getElementById("quantidade").value) || 0,
-                categoria: document.getElementById("categoria").value,
-                foto: e.target.result // Guarda a imagem convertida em string
-            };
-
-            const transaction = db.transaction(["produtos"], "readwrite");
-            const store = transaction.objectStore("produtos");
-            store.add(novoProduto);
-
-            transaction.oncomplete = function() {
-                document.getElementById("form-produto").reset();
-                listarProdutos();
-                alert("Produto cadastrado com sucesso!");
-            };
-        };
-        if (fotoInput) reader.readAsDataURL(fotoInput);
-    }
-
-    function listarProdutos() {
-        const lista = document.getElementById("lista-produtos");
-        lista.innerHTML = "";
-        const transaction = db.transaction(["produtos"], "readonly");
-        const store = transaction.objectStore("produtos");
-        
-        store.openCursor().onsuccess = function(event) {
-            const cursor = event.target.result;
-            if (cursor) {
-                const p = cursor.value;
-                lista.innerHTML += `
-                    <div class="produto-item">
-                        <span><strong>${p.nome}</strong> - R$ ${p.preco}</span>
-                        <button class="btn-deletar" onclick="deletarProduto(${cursor.key})">Excluir</button>
-                    </div>`;
-                cursor.continue();
-            }
-        };
-    }
-
-    function deletarProduto(id) {
-        if (confirm("Tem certeza que deseja excluir este produto?")) {
-            const transaction = db.transaction(["produtos"], "readwrite");
-            const store = transaction.objectStore("produtos");
-            store.delete(id);
-            transaction.oncomplete = listarProdutos;
-        }
-    }
-</script>
+        });
+    </script>
 </body>
 </html>
+
