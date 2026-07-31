@@ -140,9 +140,9 @@
         import { getFirestore, collection, addDoc } from "https://gstatic.com";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://gstatic.com";
 
-        // Configuração do Firebase
+        // Configuração do Firebase extraída da sua imagem
         const firebaseConfig = {
-            apiKey: "AIzaSyABpuATjocu03EjhqNDxw4t_wKWQYUmuuM",
+            apiKey: "AIzaSyABpuAtjocuO3EjhqNDxw4t_wkWQYUmuuM",
             authDomain: "catalogo-vendas-2007.firebaseapp.com",
             projectId: "catalogo-vendas-2007",
             storageBucket: "catalogo-vendas-2007.firebasestorage.app",
@@ -154,19 +154,18 @@
         const db = getFirestore(app);
         const storage = getStorage(app);
 
-        // Identificador provisório da loja para testes (Ex: loja_da_maria)
+        // AQUI ESTÁ O SEU ID DE TESTES! Você pode mudar este texto quando quiser trocar de loja
         const ID_LOJA_TESTE = "loja_da_maria";
 
-        // Função de controle do Menu (Alterna visibilidade das abas)
+        // Função de controle do Menu Lateral (Alterna visibilidade das abas)
         window.mudarAba = function (idDaAba) {
-            // Esconde todos os conteúdos
             document.querySelectorAll('.tab-content').forEach(tela => tela.classList.remove('active'));
-            // Remove o estilo ativo de todos os botões do menu
             document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
 
-            // Mostra a aba clicada e ativa o botão correspondente
             document.getElementById(idDaAba).classList.add('active');
-            event.target.classList.add('active');
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
         }
 
         // Processamento do Envio do Formulário de Produtos
@@ -175,7 +174,8 @@
 
             const nome = document.getElementById('prod-nome').value;
             const preco = document.getElementById('prod-preco').value;
-            const arquivoFoto = document.getElementById('prod-foto').files[0];
+            const campoFoto = document.getElementById('prod-foto');
+            const arquivoFoto = campoFoto && campoFoto.files ? campoFoto.files[0] : null;
 
             try {
                 let fotoUrl = "";
@@ -185,6 +185,7 @@
                     fotoUrl = await getDownloadURL(storageRef);
                 }
 
+                // Grava no banco vinculando ao ID correto
                 await addDoc(collection(db, "produtos"), {
                     id_loja: ID_LOJA_TESTE,
                     nome: nome,
@@ -196,11 +197,9 @@
                 alert("Doce cadastrado e publicado no catálogo com sucesso!");
                 document.getElementById('form-produto').reset();
             } catch (error) {
-                console.error("Erro no cadastro:", error);
-                alert("Ocorreu um erro ao salvar o produto.");
+                console.error("Erro no cadastro do Firebase:", error);
+                alert("Ocorreu um erro ao salvar o produto na nuvem.");
             }
         });
     </script>
-</body>
-</html>
 
