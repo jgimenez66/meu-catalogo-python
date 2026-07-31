@@ -7,7 +7,7 @@
 
 
 import { initializeApp } from "www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc } from "www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, query, where, getDocs } from "www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
 
