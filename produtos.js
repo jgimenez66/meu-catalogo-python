@@ -296,4 +296,4 @@ document.addEventListener("DOMContentLoaded", () => {
             } renderizarProdutos();
         });
     }
-}
+})
